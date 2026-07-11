@@ -5,10 +5,10 @@
 STEP 1 — ADD YOUR REAL CONTACT DETAILS
   Open any HTML file in Notepad / VS Code and use Find & Replace
   (Ctrl+H) across ALL files:
-    • Replace  91XXXXXXXXXX      → your WhatsApp number (digits only, e.g. 919812345678)
-    • Replace  +91XXXXXXXXXX     → your phone with country code (e.g. +919812345678)
-    • Replace  +91 XXXXX XXXXX   → your phone as displayed (e.g. +91 98123 45678)
-    • Replace  info@cstinstitute.in → your real email
+    • Replace  917083021167      → your WhatsApp number (digits only, e.g. 919812345678)
+    • Replace  +917083021167     → your phone with country code (e.g. +919812345678)
+    • Replace  +91 98228 26307   → your phone as displayed (e.g. +91 98123 45678)
+    • Replace  chavhan.cst@gmail.com → your real email
     • Replace the address line "Near Main Road, Bhusawal..." → your full address
   (All enquiry forms send messages to the WhatsApp number automatically.)
 

@@ -96,9 +96,9 @@ green tick.
 
 ## BEFORE GOING LIVE — checklist
 
-- [ ] Find & Replace `91XXXXXXXXXX`, `+91XXXXXXXXXX`, `+91 XXXXX XXXXX`
+- [ ] Find & Replace `917083021167`, `+917083021167`, `+91 98228 26307`
       with your real phone/WhatsApp numbers (all HTML files)
-- [ ] Replace `info@cstinstitute.in` and the address with real details
+- [ ] Replace `chavhan.cst@gmail.com` and the address with real details
 - [ ] Replace `YOURDOMAIN.in` in `sitemap.xml` and `robots.txt`
 - [ ] Replace the Google Maps embed with your exact business location
 - [ ] Add real photos in `assets/photos/` and update gallery.html

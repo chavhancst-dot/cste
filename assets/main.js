@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function () {
      message so enquiries land directly on the institute's phone.
      EDIT the number in the data-wa attribute on <body> (digits only,
      country code first, e.g. 919812345678). */
-  var waNumber = document.body.dataset.wa || '91XXXXXXXXXX';
+  var waNumber = document.body.dataset.wa || '917083021167';
   document.querySelectorAll('form.wa-form').forEach(function (form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
