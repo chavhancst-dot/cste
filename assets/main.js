@@ -1,6 +1,53 @@
 /* CST Institute — shared scripts */
 document.addEventListener('DOMContentLoaded', function () {
 
+  /* ---- Apply admin config (assets/config.js) everywhere ---- */
+  var S = window.SITE || {};
+  var PH_PHONE_DISPLAY = '+91 XXXXX XXXXX';
+  var PH_PHONE_LINK = '+91XXXXXXXXXX';
+  var PH_WA = '91XXXXXXXXXX';
+  var PH_EMAIL = 'info@cstinstitute.in';
+  var PH_ADDRESS = 'CST Institute, Near Main Road, Bhusawal, Dist. Jalgaon, Maharashtra \u2013 425201';
+
+  if (S.waNumber) document.body.dataset.wa = S.waNumber;
+
+  /* rewrite links: tel:, mailto:, wa.me */
+  document.querySelectorAll('a[href]').forEach(function (a) {
+    var h = a.getAttribute('href');
+    if (S.phoneLink && h.indexOf('tel:') === 0) {
+      a.setAttribute('href', 'tel:' + S.phoneLink);
+    } else if (S.email && h.indexOf('mailto:') === 0) {
+      a.setAttribute('href', 'mailto:' + S.email);
+    } else if (S.waNumber && h.indexOf('wa.me/') !== -1) {
+      a.setAttribute('href', h.replace(/wa\.me\/[0-9X]+/, 'wa.me/' + S.waNumber));
+    }
+  });
+
+  /* rewrite map iframes */
+  if (S.mapEmbed) {
+    document.querySelectorAll('iframe.map-frame').forEach(function (fr) {
+      fr.src = S.mapEmbed;
+    });
+  }
+
+  /* replace displayed text (phone, email, address) site-wide */
+  (function () {
+    var pairs = [];
+    if (S.phoneDisplay) pairs.push([PH_PHONE_DISPLAY, S.phoneDisplay]);
+    if (S.email) pairs.push([PH_EMAIL, S.email]);
+    if (S.address) pairs.push([PH_ADDRESS, S.address]);
+    if (!pairs.length) return;
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    var node;
+    while ((node = walker.nextNode())) {
+      var t = node.nodeValue;
+      pairs.forEach(function (p) {
+        if (t.indexOf(p[0]) !== -1) t = t.split(p[0]).join(p[1]);
+      });
+      if (t !== node.nodeValue) node.nodeValue = t;
+    }
+  })();
+
   /* ---- Mobile menu ---- */
   var burger = document.querySelector('.hamburger');
   var menu = document.querySelector('nav.menu');
@@ -83,26 +130,60 @@ document.addEventListener('DOMContentLoaded', function () {
     reveals.forEach(function (r) { r.classList.add('in'); });
   }
 
-  /* ---- Enquiry forms → WhatsApp ----
-     Every form with class .wa-form opens WhatsApp with a pre-filled
-     message so enquiries land directly on the institute's phone.
-     EDIT the number in the data-wa attribute on <body> (digits only,
-     country code first, e.g. 919812345678). */
-  var waNumber = document.body.dataset.wa || '917083021167';
+  /* ---- Enquiry forms: GUARANTEED dual delivery ----
+     1) Instantly emails the enquiry to the institute via Web3Forms
+        (if SITE.web3formsKey is set in assets/config.js) - works even
+        if the student never presses Send on WhatsApp.
+     2) Then opens WhatsApp with the message pre-filled as before. */
+  var waNumber = document.body.dataset.wa || '91XXXXXXXXXX';
   document.querySelectorAll('form.wa-form').forEach(function (form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
+      var btn = form.querySelector('button[type="submit"]');
+      var origText = btn ? btn.textContent : '';
+      if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+
       var data = new FormData(form);
-      var msg = 'New Enquiry — CST Institute Website%0A';
+      var entries = [];
       data.forEach(function (value, key) {
-        if (String(value).trim() !== '') {
-          msg += '%0A*' + key + ':* ' + encodeURIComponent(value);
-        }
+        if (String(value).trim() !== '') entries.push([key, String(value)]);
       });
-      window.open('https://wa.me/' + waNumber + '?text=' + msg, '_blank');
-      form.reset();
-      var ok = form.querySelector('.form-success');
-      if (ok) { ok.style.display = 'block'; }
+
+      function openWhatsApp() {
+        var msg = 'New Enquiry - CST Institute Website%0A';
+        entries.forEach(function (p) {
+          msg += '%0A*' + p[0] + ':* ' + encodeURIComponent(p[1]);
+        });
+        window.open('https://wa.me/' + waNumber + '?text=' + msg, '_blank');
+      }
+
+      function finish(emailOk) {
+        if (btn) { btn.disabled = false; btn.textContent = origText; }
+        form.reset();
+        var ok = form.querySelector('.form-success');
+        if (ok) {
+          ok.style.display = 'block';
+          ok.textContent = emailOk
+            ? '\u2713 Enquiry received! We have your details - also press Send in WhatsApp for fastest reply.'
+            : '\u2713 WhatsApp opened - please press SEND to complete your enquiry.';
+        }
+      }
+
+      var key = (window.SITE && window.SITE.web3formsKey) || '';
+      if (key) {
+        var payload = { access_key: key, subject: 'New Website Enquiry - CST Institute', from_name: 'CST Website' };
+        entries.forEach(function (p) { payload[p[0]] = p[1]; });
+        fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(payload)
+        }).then(function (r) { return r.json(); })
+          .then(function (res) { openWhatsApp(); finish(res && res.success); })
+          .catch(function () { openWhatsApp(); finish(false); });
+      } else {
+        openWhatsApp();
+        finish(false);
+      }
     });
   });
 
